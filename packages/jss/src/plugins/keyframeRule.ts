@@ -1,10 +1,9 @@
-// @flow
 import toCss from '../utils/toCss'
-import type {JssStyle, RuleOptions, ToCssOptions, CSSKeyframeRule} from '../types'
+import {JssStyle, RuleOptions, ToCssOptions, CSSKeyframeRule, ContainerRule} from '../types'
 import {BaseStyleRule} from './styleRule'
 
 export class KeyframeRule extends BaseStyleRule {
-  renderable: ?CSSKeyframeRule
+  renderable?: CSSKeyframeRule
 
   /**
    * Generates a CSS string.
@@ -19,7 +18,7 @@ export class KeyframeRule extends BaseStyleRule {
 
 export default {
   onCreateRule(key: string, style: JssStyle, options: RuleOptions): KeyframeRule | null {
-    if (options.parent && options.parent.type === 'keyframes') {
+    if (options.parent && (options.parent as ContainerRule).type === 'keyframes') {
       return new KeyframeRule(key, style, options)
     }
     return null

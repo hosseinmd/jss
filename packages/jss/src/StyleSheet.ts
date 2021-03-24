@@ -1,6 +1,5 @@
-// @flow
 import RuleList from './RuleList'
-import type {
+import {
   InternalStyleSheetOptions,
   Rule,
   ToCssOptions,
@@ -12,10 +11,13 @@ import type {
   JssStyles,
   Renderer,
   UpdateArguments,
-  UpdateOptions
+  UpdateOptions,
+  AnyCSSRule
 } from './types'
 
-export default class StyleSheet {
+export default class StyleSheet<
+  RuleName extends string | number | symbol = string | number | symbol
+> {
   options: InternalStyleSheetOptions
 
   deployed: boolean
@@ -24,18 +26,18 @@ export default class StyleSheet {
 
   rules: RuleList
 
-  renderer: Renderer | null
+  renderer: Renderer | null = null
 
-  classes: Classes
+  classes: Classes<RuleName>
 
   keyframes: KeyframesMap
 
-  queue: ?Array<Rule>
+  queue?: Array<Rule>
 
   constructor(styles: JssStyles, options: StyleSheetOptions) {
     this.attached = false
     this.deployed = false
-    this.classes = {}
+    this.classes = {} as Classes<RuleName>
     this.keyframes = {}
     this.options = {
       ...options,
@@ -45,9 +47,10 @@ export default class StyleSheet {
       keyframes: this.keyframes
     }
     if (options.Renderer) {
+      //@ts-ignore
       this.renderer = new options.Renderer(this)
     }
-    this.rules = new RuleList(this.options)
+    this.rules = new RuleList(this.options as any)
 
     for (const name in styles) {
       this.rules.add(name, styles[name])
@@ -166,7 +169,7 @@ export default class StyleSheet {
     this.rules.remove(rule)
 
     if (this.attached && rule.renderable && this.renderer) {
-      return this.renderer.deleteRule(rule.renderable)
+      return this.renderer.deleteRule(rule.renderable as AnyCSSRule)
     }
 
     return true

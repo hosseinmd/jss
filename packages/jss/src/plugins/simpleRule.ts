@@ -1,5 +1,4 @@
-// @flow
-import type {
+import {
   CSSCharsetRule,
   CSSImportRule,
   CSSNamespaceRule,
@@ -20,7 +19,7 @@ export class SimpleRule implements BaseRule {
 
   isProcessed: boolean = false
 
-  renderable: ?CSSCharsetRule | CSSImportRule | CSSNamespaceRule
+  renderable?: CSSCharsetRule | CSSImportRule | CSSNamespaceRule
 
   constructor(key: string, value: string, options: RuleOptions) {
     this.key = key
@@ -54,6 +53,6 @@ const keysMap = {
 
 export default {
   onCreateRule(key: string, value: JssStyle, options: RuleOptions): SimpleRule | null {
-    return key in keysMap ? new SimpleRule(key, ((value: any): string), options) : null
+    return key in keysMap ? new SimpleRule(key, value as string, options) : null
   }
 }

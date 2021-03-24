@@ -1,6 +1,6 @@
-// @flow
+//@ts-ignore
 import warning from 'tiny-warning'
-import type {Rule, RuleOptions, JssStyle} from '../types'
+import {Rule, RuleOptions, JssStyle} from '../types'
 import cloneStyle from './cloneStyle'
 
 /**

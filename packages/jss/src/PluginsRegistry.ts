@@ -1,4 +1,4 @@
-// @flow
+//@ts-ignore
 import warning from 'tiny-warning'
 import type StyleSheet from './StyleSheet'
 import type {
@@ -35,6 +35,7 @@ export default class PluginsRegistry {
     external: []
   }
 
+  //@ts-ignore
   registry: Registry
 
   /**
@@ -59,7 +60,7 @@ export default class PluginsRegistry {
       this.registry.onProcessRule[i](rule, sheet)
     }
 
-    if (rule.style) this.onProcessStyle(rule.style, rule, sheet)
+    if ((rule as StyleRule).style) this.onProcessStyle((rule as StyleRule).style, rule, sheet)
 
     rule.isProcessed = true
   }
@@ -70,7 +71,7 @@ export default class PluginsRegistry {
   onProcessStyle(style: JssStyle, rule: Rule, sheet?: StyleSheet): void {
     for (let i = 0; i < this.registry.onProcessStyle.length; i++) {
       // $FlowFixMe[prop-missing]
-      rule.style = this.registry.onProcessStyle[i](rule.style, rule, sheet)
+      (rule as StyleRule).style = this.registry.onProcessStyle[i]((rule as StyleRule).style, rule, sheet)
     }
   }
 
@@ -86,7 +87,7 @@ export default class PluginsRegistry {
   /**
    * Call `onUpdate` hooks.
    */
-  onUpdate(data: Object, rule: Rule, sheet?: StyleSheet, options: UpdateOptions): void {
+  onUpdate(data: Object, rule: Rule, sheet: StyleSheet | undefined, options: UpdateOptions): void {
     for (let i = 0; i < this.registry.onUpdate.length; i++) {
       this.registry.onUpdate[i](data, rule, sheet, options)
     }
@@ -120,7 +121,7 @@ export default class PluginsRegistry {
       (registry: Registry, plugin: Plugin) => {
         for (const name in plugin) {
           if (name in registry) {
-            registry[name].push(plugin[name])
+            registry[name as keyof Registry].push(plugin[name as keyof Plugin] as any)
           } else {
             warning(false, `[JSS] Unknown hook "${name}".`)
           }

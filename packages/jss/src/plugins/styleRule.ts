@@ -1,9 +1,9 @@
-// @flow
+//@ts-ignore
 import warning from 'tiny-warning'
 import toCss from '../utils/toCss'
 import toCssValue from '../utils/toCssValue'
 import escape from '../utils/escape'
-import type {
+import {
   CSSStyleRule,
   HTMLElementWithStyleMap,
   ToCssOptions,
@@ -12,7 +12,8 @@ import type {
   Renderer as RendererInterface,
   JssStyle,
   JssValue,
-  BaseRule
+  BaseRule,
+  ContainerRule
 } from '../types'
 
 export class BaseStyleRule implements BaseRule {
@@ -24,9 +25,9 @@ export class BaseStyleRule implements BaseRule {
 
   style: JssStyle
 
-  renderer: RendererInterface | null
+  renderer: RendererInterface | null = null
 
-  renderable: ?Object
+  renderable?: Object
 
   options: RuleOptions
 
@@ -36,6 +37,8 @@ export class BaseStyleRule implements BaseRule {
     this.options = options
     this.style = style
     if (sheet) this.renderer = sheet.renderer
+    /** @todo Renderer incompatible type */
+    //@ts-ignore
     else if (Renderer) this.renderer = new Renderer()
   }
 
@@ -44,11 +47,11 @@ export class BaseStyleRule implements BaseRule {
    */
   prop(name: string, value?: JssValue, options?: UpdateOptions): this | string {
     // It's a getter.
-    if (value === undefined) return this.style[name]
+    if (value === undefined) return this.style[name as keyof JssStyle] as this
 
     // Don't do anything if the value has not changed.
     const force = options ? options.force : false
-    if (!force && this.style[name] === value) return this
+    if (!force && this.style[name as keyof JssStyle] === value) return this
 
     let newValue = value
     if (!options || options.process !== false) {
@@ -64,13 +67,15 @@ export class BaseStyleRule implements BaseRule {
     // We are going to remove this value.
     const remove = isEmpty && isDefined
 
-    if (remove) delete this.style[name]
+    if (remove) delete this.style[name as keyof JssStyle]
+    /** @todo Help needed */
+    //@ts-ignore
     else this.style[name] = newValue
 
     // Renderable is defined if StyleSheet option `link` is true.
     if (this.renderable && this.renderer) {
-      if (remove) this.renderer.removeProperty(this.renderable, name)
-      else this.renderer.setProperty(this.renderable, name, newValue)
+      if (remove) this.renderer.removeProperty(this.renderable as any, name)
+      else this.renderer.setProperty(this.renderable as any, name, newValue)
       return this
     }
 
@@ -83,11 +88,12 @@ export class BaseStyleRule implements BaseRule {
 }
 
 export class StyleRule extends BaseStyleRule {
+  //@ts-ignore
   selectorText: string
 
-  id: ?string
+  id?: string
 
-  renderable: ?CSSStyleRule
+  renderable?: CSSStyleRule
 
   constructor(key: string, style: JssStyle, options: RuleOptions) {
     super(key, style, options)
@@ -105,7 +111,7 @@ export class StyleRule extends BaseStyleRule {
    * Attention: use this with caution. Most browsers didn't implement
    * selectorText setter, so this may result in rerendering of entire Style Sheet.
    */
-  set selector(selector: string): void {
+  set selector(selector: string) {
     if (selector === this.selectorText) return
 
     this.selectorText = selector
@@ -148,10 +154,10 @@ export class StyleRule extends BaseStyleRule {
    * Fallbacks are not supported.
    * Useful for inline styles.
    */
-  toJSON(): Object {
-    const json = {}
+  toJSON(): Record<string, any> {
+    const json: Record<string, any> = {}
     for (const prop in this.style) {
-      const value = this.style[prop]
+      const value = this.style[prop as keyof JssStyle]
       if (typeof value !== 'object') json[prop] = value
       else if (Array.isArray(value)) json[prop] = toCssValue(value)
     }
@@ -171,7 +177,10 @@ export class StyleRule extends BaseStyleRule {
 
 export default {
   onCreateRule(name: string, style: JssStyle, options: RuleOptions): StyleRule | null {
-    if (name[0] === '@' || (options.parent && options.parent.type === 'keyframes')) {
+    if (
+      name[0] === '@' ||
+      (options.parent && (options.parent as ContainerRule).type === 'keyframes')
+    ) {
       return null
     }
     return new StyleRule(name, style, options)

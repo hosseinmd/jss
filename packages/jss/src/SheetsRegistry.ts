@@ -1,4 +1,3 @@
-// @flow
 import type {ToCssOptions} from './types'
 import type StyleSheet from './StyleSheet'
 
@@ -56,7 +55,7 @@ export default class SheetsRegistry {
   /**
    * Convert all attached sheets to a CSS string.
    */
-  toString({attached, ...options}: {|attached?: boolean, ...ToCssOptions|} = {}): string {
+  toString({attached, ...options}: {attached?: boolean} & ToCssOptions = {}): string {
     let css = ''
     for (let i = 0; i < this.registry.length; i++) {
       const sheet = this.registry[i]

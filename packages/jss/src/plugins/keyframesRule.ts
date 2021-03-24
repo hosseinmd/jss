@@ -1,14 +1,15 @@
-// @flow
+//@ts-ignore
 import warning from 'tiny-warning'
 import RuleList from '../RuleList'
-import type {
+import {
   CSSKeyframesRule,
   JssStyle,
   RuleOptions,
   ToCssOptions,
   ContainerRule,
   KeyframesMap,
-  Plugin
+  Plugin,
+  JssValue
 } from '../types'
 import escape from '../utils/escape'
 
@@ -39,9 +40,9 @@ export class KeyframesRule implements ContainerRule {
 
   isProcessed: boolean = false
 
-  renderable: ?CSSKeyframesRule
+  renderable?: CSSKeyframesRule
 
-  constructor(key: string, frames: Object, options: RuleOptions) {
+  constructor(key: string, frames: Record<string, any>, options: RuleOptions) {
     const nameMatch = key.match(nameRegExp)
     if (nameMatch && nameMatch[1]) {
       this.name = nameMatch[1]
@@ -68,7 +69,7 @@ export class KeyframesRule implements ContainerRule {
   /**
    * Generates a CSS string.
    */
-  toString(options?: ToCssOptions = defaultToStringOptions): string {
+  toString(options: ToCssOptions = defaultToStringOptions): string {
     if (options.indent == null) options.indent = defaultToStringOptions.indent
     if (options.children == null) options.children = defaultToStringOptions.children
     if (options.children === false) {
@@ -84,9 +85,9 @@ const keyRegExp = /@keyframes\s+/
 
 const refRegExp = /\$([\w-]+)/g
 
-const findReferencedKeyframe = (val, keyframes) => {
+const findReferencedKeyframe = (val: JssValue, keyframes: Record<string, any>) => {
   if (typeof val === 'string') {
-    return val.replace(refRegExp, (match, name) => {
+    return (val as string).replace(refRegExp, (match, name) => {
       if (name in keyframes) {
         return keyframes[name]
       }
@@ -103,11 +104,12 @@ const findReferencedKeyframe = (val, keyframes) => {
 /**
  * Replace the reference for a animation name.
  */
-const replaceRef = (style: JssStyle, prop: string, keyframes: KeyframesMap) => {
+const replaceRef = (style: Record<string, any>, prop: string, keyframes: KeyframesMap) => {
   const value = style[prop]
   const refKeyframe = findReferencedKeyframe(value, keyframes)
 
   if (refKeyframe !== value) {
+    //@ts-ignore
     style[prop] = refKeyframe
   }
 }

@@ -1,6 +1,6 @@
-// @flow
+//@ts-ignore
 import warn from 'tiny-warning'
-import type StyleSheet from './StyleSheet'
+import StyleSheet from './StyleSheet'
 
 /**
  * SheetsManager is like a WeakMap which is designed to count StyleSheet
@@ -12,7 +12,7 @@ export default class SheetsManager {
   sheets: WeakMap<
     Object,
     {
-      refs: number,
+      refs: number
       sheet: StyleSheet
     }
   > = new WeakMap()
@@ -21,7 +21,7 @@ export default class SheetsManager {
     return this.length
   }
 
-  get(key: Object): ?StyleSheet {
+  get(key: Object): StyleSheet | undefined {
     const entry = this.sheets.get(key)
     return entry && entry.sheet
   }
@@ -37,7 +37,7 @@ export default class SheetsManager {
     })
   }
 
-  manage(key: Object): ?StyleSheet {
+  manage(key: Object): StyleSheet | undefined {
     const entry = this.sheets.get(key)
 
     if (entry) {

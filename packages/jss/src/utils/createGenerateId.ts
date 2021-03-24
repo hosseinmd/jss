@@ -1,14 +1,14 @@
-// @flow
+//@ts-ignore
 import warning from 'tiny-warning'
-import type {Rule} from '../types'
+import {Rule} from '../types'
 import StyleSheet from '../StyleSheet'
 import moduleId from './moduleId'
 
 const maxRules = 1e10
 
-export type CreateGenerateIdOptions = {|
-  minify: boolean
-|}
+export type CreateGenerateIdOptions = {
+  minify?: boolean
+}
 export type GenerateId = (rule: Rule, sheet?: StyleSheet) => string
 
 export type CreateGenerateId = (options?: CreateGenerateIdOptions) => GenerateId

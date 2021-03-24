@@ -1,8 +1,6 @@
-// @flow
+import {JssValue} from '../types'
 
-import type {FixMeAny} from '../types'
-
-const join = (value, by) => {
+const join = (value: any[], by: string) => {
   let result = ''
   for (let i = 0; i < value.length; i++) {
     // Remove !important from the value, it will be readded later.
@@ -13,8 +11,6 @@ const join = (value, by) => {
   return result
 }
 
-type ToCssValue = (FixMeAny, boolean | void) => string
-
 /**
  * Converts array values to string.
  *
@@ -23,7 +19,8 @@ type ToCssValue = (FixMeAny, boolean | void) => string
  * `margin: [['5px', '10px'], '!important']` > `margin: 5px 10px !important;`
  * `color: ['red', !important]` > `color: red !important;`
  */
-const toCssValue: ToCssValue = (value, ignoreImportant = false) => {
+const toCssValue = (value: JssValue, ignoreImportant = false): string => {
+  //@ts-ignore
   if (!Array.isArray(value)) return value
 
   let cssValue = ''
@@ -33,7 +30,7 @@ const toCssValue: ToCssValue = (value, ignoreImportant = false) => {
     for (let i = 0; i < value.length; i++) {
       if (value[i] === '!important') break
       if (cssValue) cssValue += ', '
-      cssValue += join(value[i], ' ')
+      cssValue += join(value[i] as any[], ' ')
     }
   } else cssValue = join(value, ', ')
 

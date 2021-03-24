@@ -1,6 +1,13 @@
-// @flow
 import RuleList from '../RuleList'
-import type {CSSMediaRule, Rule, RuleOptions, ToCssOptions, JssStyle, ContainerRule} from '../types'
+import {
+  CSSMediaRule,
+  Rule,
+  RuleOptions,
+  ToCssOptions,
+  JssStyle,
+  ContainerRule,
+  JssStyles
+} from '../types'
 
 const defaultToStringOptions = {
   indent: 1,
@@ -27,9 +34,9 @@ export class ConditionalRule implements ContainerRule {
 
   isProcessed: boolean = false
 
-  renderable: ?CSSMediaRule
+  renderable?: CSSMediaRule
 
-  constructor(key: string, styles: Object, options: RuleOptions) {
+  constructor(key: string, styles: JssStyles, options: RuleOptions) {
     this.key = key
     const atMatch = key.match(atRegExp)
     this.at = atMatch ? atMatch[1] : 'unknown'
@@ -72,7 +79,7 @@ export class ConditionalRule implements ContainerRule {
   /**
    * Generates a CSS string.
    */
-  toString(options?: ToCssOptions = defaultToStringOptions): string {
+  toString(options: ToCssOptions = defaultToStringOptions): string {
     if (options.indent == null) options.indent = defaultToStringOptions.indent
     if (options.children == null) options.children = defaultToStringOptions.children
     if (options.children === false) {
@@ -86,7 +93,7 @@ export class ConditionalRule implements ContainerRule {
 const keyRegExp = /@media|@supports\s+/
 
 export default {
-  onCreateRule(key: string, styles: JssStyle, options: RuleOptions): ConditionalRule | null {
+  onCreateRule(key: string, styles: JssStyles, options: RuleOptions): ConditionalRule | null {
     return keyRegExp.test(key) ? new ConditionalRule(key, styles, options) : null
   }
 }

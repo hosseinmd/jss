@@ -7,8 +7,8 @@
  * @license MIT
  */
 import Jss from './Jss'
-import type StyleSheet from './StyleSheet'
-import type {
+import StyleSheet from './StyleSheet'
+import {
   ConditionalRule,
   KeyframesRule,
   StyleRule,
@@ -16,12 +16,7 @@ import type {
   SimpleRule,
   FontFaceRule
 } from './plugins'
-import type {JssOptions} from './types'
-
-/**
- * Export types for better typing inside plugins and integrations.
- */
-export type {
+import {
   StyleSheetFactoryOptions,
   JssValue,
   JssOptions,
@@ -36,9 +31,10 @@ export type {
   BaseRule,
   ContainerRule
 } from './types'
-export type {GenerateId, CreateGenerateId, CreateGenerateIdOptions} from './utils/createGenerateId'
 
-export type {
+export * from './utils/createGenerateId'
+
+export {
   Jss,
   StyleSheet,
   ConditionalRule,
@@ -46,7 +42,20 @@ export type {
   StyleRule,
   ViewportRule,
   SimpleRule,
-  FontFaceRule
+  FontFaceRule,
+  StyleSheetFactoryOptions,
+  JssValue,
+  JssOptions,
+  JssStyle,
+  Plugin,
+  RuleListOptions,
+  Rule,
+  Renderer,
+  RuleOptions,
+  UpdateOptions,
+  Classes,
+  BaseRule,
+  ContainerRule
 }
 
 /**
@@ -98,7 +107,7 @@ export {default as createGenerateId} from './utils/createGenerateId'
 /**
  * Creates a new instance of Jss.
  */
-export const create = (options?: JssOptions): Jss => new Jss(options)
+export const create = (options?: Partial<JssOptions>): Jss => new Jss(options)
 
 /**
  * A global Jss instance.

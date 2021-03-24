@@ -1,7 +1,6 @@
-// @flow
 import createRule from './utils/createRule'
-import {StyleRule, KeyframesRule} from './plugins/index'
-import type {
+import {StyleRule, KeyframesRule, ConditionalRule} from './plugins/index'
+import {
   RuleListOptions,
   ToCssOptions,
   Rule,
@@ -10,7 +9,8 @@ import type {
   Classes,
   KeyframesMap,
   UpdateArguments,
-  UpdateOptions
+  UpdateOptions,
+  JssValue
 } from './types'
 import escape from './utils/escape'
 
@@ -36,7 +36,7 @@ export default class RuleList {
   raw: {[key: string]: JssStyle} = {}
 
   // Used to ensure correct rules order.
-  index: Array<Rule> = []
+  index: Rule[] = []
 
   counter: number = 0
 
@@ -183,10 +183,10 @@ export default class RuleList {
     }
 
     if (name) {
-      this.updateOne(this.map[name], data, options)
+      this.updateOne(this.map[name], data!, options)
     } else {
       for (let index = 0; index < this.index.length; index++) {
-        this.updateOne(this.index[index], data, options)
+        this.updateOne(this.index[index], data!, options)
       }
     }
   }
@@ -194,19 +194,19 @@ export default class RuleList {
   /**
    * Execute plugins, update rule props.
    */
-  updateOne(rule: Rule, data: Object, options?: UpdateOptions = defaultUpdateOptions) {
+  updateOne(rule: Rule, data: Object, options: UpdateOptions = defaultUpdateOptions) {
     const {
       jss: {plugins},
       sheet
     } = this.options
 
     // It is a rules container like for e.g. ConditionalRule.
-    if (rule.rules instanceof RuleList) {
-      rule.rules.update(data, options)
+    if ((rule as ConditionalRule).rules instanceof RuleList) {
+      ;(rule as ConditionalRule).rules.update(data, options)
       return
     }
 
-    const styleRule: StyleRule = (rule: any)
+    const styleRule = rule as StyleRule
     const {style} = styleRule
 
     plugins.onUpdate(data, rule, sheet, options)
@@ -218,19 +218,19 @@ export default class RuleList {
 
       // Update and add props.
       for (const prop in styleRule.style) {
-        const nextValue = styleRule.style[prop]
-        const prevValue = style[prop]
+        const nextValue = styleRule.style[prop as keyof JssStyle]
+        const prevValue = style[prop as keyof JssStyle]
         // We need to use `force: true` because `rule.style` has been updated during onUpdate hook, so `rule.prop()` will not update the CSSOM rule.
         // We do this comparison to avoid unneeded `rule.prop()` calls, since we have the old `style` object here.
         if (nextValue !== prevValue) {
-          styleRule.prop(prop, nextValue, forceUpdateOptions)
+          styleRule.prop(prop, nextValue as JssValue, forceUpdateOptions)
         }
       }
 
       // Remove props.
       for (const prop in style) {
-        const nextValue = styleRule.style[prop]
-        const prevValue = style[prop]
+        const nextValue = styleRule.style[prop as keyof JssStyle]
+        const prevValue = style[prop as keyof JssStyle]
         // We need to use `force: true` because `rule.style` has been updated during onUpdate hook, so `rule.prop()` will not update the CSSOM rule.
         // We do this comparison to avoid unneeded `rule.prop()` calls, since we have the old `style` object here.
         if (nextValue == null && nextValue !== prevValue) {
